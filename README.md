@@ -17,26 +17,23 @@ If you are an AI agent reading this README to install the plugin, follow these s
 
 ### Step 1: Check prerequisites
 
-Open PowerShell and check if bun is installed:
+Open PowerShell and check if Node.js and npm are installed:
 
 ```powershell
-bun --version
+node --version
+npm --version
 ```
 
-If bun is not installed:
+If Node.js and npm are not installed, download and install the LTS version from [nodejs.org](https://nodejs.org/).
 
-```powershell
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
-Must be **bun v1.1.x** — the latest stable release.
+Must be **Node.js v18+** — the latest LTS release recommended.
 
 ### Step 2: Install dependencies and build
 
 ```powershell
 cd \path\to\oh-my-opencode-air-pwsh
-bun install
-bun run build
+npm install
+npm run build
 ```
 
 ### Step 3: Register the plugin
@@ -133,14 +130,14 @@ The on-premise server has a strict 100-line-per-tool-call limit. This is enforce
 
 ## Development
 
-> **Note:** The built CLI (`dist/cli/index.js`) is a standard Node.js script (via `#!/usr/bin/env node` shebang). Bun is used for development, building, and testing, but the compiled CLI output runs on any Node.js runtime.
+> **Note:** The built CLI (`dist/cli/index.js`) is a standard Node.js script (via `#!/usr/bin/env node` shebang). Use npm for all development tasks (install, build, test, lint). The compiled CLI output runs on any Node.js runtime.
 
 ```powershell
-bun install          # Install dependencies
-bun run build        # Build to dist/
-bun run typecheck    # Type check
-bun test             # Run tests
-bun run check        # Lint + format
+npm install          # Install dependencies
+npm run build        # Build to dist/
+npm run typecheck    # Type check
+npm test             # Run tests
+npm run check        # Lint + format
 ```
 
 ## Project Structure
@@ -174,11 +171,11 @@ Based on [Karpathy's coding guidelines](https://x.com/karpathy/status/2015883857
 
 Some tests depend on the environment. Skip them:
 ```powershell
-bun test --test-path-pattern='!interview|dashboard|paths|system|providers|apply-patch|task-session-manager|tmux|auto-update-checker'
+npm test -- --test-path-pattern='!interview|dashboard|paths|system|providers|apply-patch|task-session-manager|tmux|auto-update-checker'
 ```
 
 ### Plugin not loading
-Check that the plugin path in `opencode.json` is correct and `bun run build` completed successfully.
+Check that the plugin path in `opencode.json` is correct and `npm run build` completed successfully.
 
 ## License
 
