@@ -29,7 +29,10 @@ function resolvePathCommand(command: string): string | null {
 
 function canExecute(command: string, args: string[]): boolean {
   try {
-    const isWindowsCmd = process.platform === 'win32' && (command.toLowerCase().endsWith('.cmd') || command.toLowerCase().endsWith('.bat'));
+    const isWindowsCmd =
+      process.platform === 'win32' &&
+      (command.toLowerCase().endsWith('.cmd') ||
+        command.toLowerCase().endsWith('.bat'));
     const result = spawnSync(command, args, {
       stdio: 'ignore',
       shell: isWindowsCmd,

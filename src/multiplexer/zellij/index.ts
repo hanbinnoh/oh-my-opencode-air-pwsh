@@ -160,6 +160,10 @@ export class ZellijMultiplexer implements Multiplexer {
     }).exited;
 
     // Create pane
+    const isWindows = process.platform === 'win32';
+    const shellCmd = isWindows ? 'powershell' : 'sh';
+    const shellArgs = isWindows ? ['-NoProfile', '-Command'] : ['-lc'];
+
     const args = [
       'action',
       'new-pane',
@@ -167,8 +171,8 @@ export class ZellijMultiplexer implements Multiplexer {
       paneName,
       '--close-on-exit',
       '--',
-      'sh',
-      '-lc',
+      shellCmd,
+      ...shellArgs,
       opencodeCmd,
     ];
 
