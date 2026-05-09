@@ -36,13 +36,13 @@ const SYMBOLS = {
   star: `${YELLOW}★${RESET}`,
 };
 
-const GITHUB_REPO = 'hanbinnoh/oh-my-opencode-air';
+const GITHUB_REPO = 'hanbinnoh/oh-my-opencode-air-pwsh';
 const GITHUB_URL = `https://github.com/${GITHUB_REPO}`;
 
 function printHeader(isUpdate: boolean): void {
   console.log();
   console.log(
-    `${BOLD}oh-my-opencode-air ${isUpdate ? 'Update' : 'Install'}${RESET}`,
+    `${BOLD}oh-my-opencode-air-pwsh ${isUpdate ? 'Update' : 'Install'}${RESET}`,
   );
   console.log('='.repeat(30));
   console.log();
@@ -113,13 +113,31 @@ async function checkOpenCodeInstalled(): Promise<{
   if (!installed) {
     printError('OpenCode is not installed on this system.');
     printInfo('Install it with:');
-    console.log(
-      `     ${BLUE}curl -fsSL https://opencode.ai/install | bash${RESET}`,
-    );
+    if (process.platform === 'win32') {
+      console.log(
+        `     ${BLUE}iwr -useb https://opencode.ai/install.ps1 | iex${RESET}  (PowerShell)`,
+      );
+      console.log(`     ${BLUE}winget install OpenCode${RESET}`);
+    } else {
+      console.log(
+        `     ${BLUE}curl -fsSL https://opencode.ai/install | bash${RESET}`,
+      );
+    }
     console.log();
     printInfo('Or if already installed, add it to your PATH:');
-    console.log(`     ${BLUE}export PATH="$HOME/.local/bin:$PATH"${RESET}`);
-    console.log(`     ${BLUE}export PATH="$HOME/.opencode/bin:$PATH"${RESET}`);
+    if (process.platform === 'win32') {
+      console.log(
+        `     ${BLUE}$env:PATH = "$env:PATH;$env:LOCALAPPDATA\\Programs\\opencode\\bin"${RESET}`,
+      );
+      console.log(
+        `     ${BLUE}[Environment]::SetEnvironmentVariable("PATH", $env:PATH, "User")${RESET}`,
+      );
+    } else {
+      console.log(`     ${BLUE}export PATH="$HOME/.local/bin:$PATH"${RESET}`);
+      console.log(
+        `     ${BLUE}export PATH="$HOME/.opencode/bin:$PATH"${RESET}`,
+      );
+    }
     return { ok: false };
   }
   const version = await getOpenCodeVersion();
@@ -163,7 +181,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
     const { ok } = await checkOpenCodeInstalled();
     if (!ok) return 1;
   }
-  printStep(step++, totalSteps, 'Adding oh-my-opencode-air plugin...');
+  printStep(step++, totalSteps, 'Adding oh-my-opencode-air-pwsh plugin...');
   if (config.dryRun) {
     printInfo('Dry run mode - skipping plugin installation');
   } else {
@@ -199,7 +217,11 @@ async function runInstall(config: InstallConfig): Promise<number> {
     if (!handleStepResult(lspResult, 'LSP enabled')) return 1;
   }
 
-  printStep(step++, totalSteps, 'Writing oh-my-opencode-air configuration...');
+  printStep(
+    step++,
+    totalSteps,
+    'Writing oh-my-opencode-air-pwsh configuration...',
+  );
   if (config.dryRun) {
     const liteConfig = generateLiteConfig(config);
     printInfo('Dry run mode - configuration that would be written:');
@@ -313,7 +335,7 @@ async function runInstall(config: InstallConfig): Promise<number> {
   const altProviders = 'For the full configuration reference, see:';
   console.log(altProviders);
   const docsUrl =
-    'https://github.com/hanbinnoh/oh-my-opencode-air/' +
+    'https://github.com/hanbinnoh/oh-my-opencode-air-pwsh/' +
     'blob/master/docs/configuration.md';
   console.log(`  ${BLUE}${docsUrl}${RESET}`);
   console.log();

@@ -39,7 +39,7 @@ export interface LoadPluginConfigOptions {
   silent?: boolean;
 }
 
-const PROMPTS_DIR_NAME = 'oh-my-opencode-air';
+const PROMPTS_DIR_NAME = 'oh-my-opencode-air-pwsh';
 
 /**
  * Load and validate plugin configuration from a specific file path.
@@ -71,7 +71,7 @@ function loadConfigFromPath(
       });
       if (!options?.silent) {
         console.warn(
-          `[oh-my-opencode-air] Invalid JSON in ${configPath}:`,
+          `[oh-my-opencode-air-pwsh] Invalid JSON in ${configPath}:`,
           message,
         );
       }
@@ -87,7 +87,9 @@ function loadConfigFromPath(
         formatted: result.error.format(),
       });
       if (!options?.silent) {
-        console.warn(`[oh-my-opencode-air] Invalid config at ${configPath}:`);
+        console.warn(
+          `[oh-my-opencode-air-pwsh] Invalid config at ${configPath}:`,
+        );
         console.warn(result.error.format());
       }
       return null;
@@ -108,7 +110,7 @@ function loadConfigFromPath(
       });
       if (!options?.silent) {
         console.warn(
-          `[oh-my-opencode-air] Error reading config from ${configPath}:`,
+          `[oh-my-opencode-air-pwsh] Error reading config from ${configPath}:`,
           error.message,
         );
       }
@@ -301,7 +303,7 @@ export function loadPluginConfig(
         message,
       });
       if (!options?.silent) {
-        console.warn(`[oh-my-opencode-air] ${message}`);
+        console.warn(`[oh-my-opencode-air-pwsh] ${message}`);
       }
     }
   }
@@ -350,7 +352,7 @@ export function loadAgentPrompt(
         return fs.readFileSync(promptPath, 'utf-8');
       } catch (error) {
         console.warn(
-          `[oh-my-opencode-air] ${errorPrefix} ${promptPath}:`,
+          `[oh-my-opencode-air-pwsh] ${errorPrefix} ${promptPath}:`,
           error instanceof Error ? error.message : String(error),
         );
       }

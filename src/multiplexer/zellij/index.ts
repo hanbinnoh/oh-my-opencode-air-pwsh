@@ -9,6 +9,7 @@
 
 import type { MultiplexerLayout } from '../../config/schema';
 import { crossSpawn } from '../../utils/compat';
+import { quoteShellArg } from '../../utils/shell-quote';
 import type { Multiplexer, PaneResult } from '../types';
 
 interface ZellijTabInfo {
@@ -27,13 +28,11 @@ export class ZellijMultiplexer implements Multiplexer {
   private firstPaneId: string | null = null;
   private firstPaneUsed = false;
 
-  constructor(layout: MultiplexerLayout = 'main-vertical', mainPaneSize = 60) {
-    // Note: Zellij does NOT support layout configuration like tmux.
-    // These params are accepted for API consistency but are no-ops.
-    // Zellij uses its own native layout algorithm for pane arrangement.
-    void layout;
-    void mainPaneSize;
-  }
+  // biome-ignore lint/complexity/noUselessConstructor: needed for Multiplexer interface API consistency — Zellij uses its own native layout algorithm
+  constructor(
+    _layout: MultiplexerLayout = 'main-vertical',
+    _mainPaneSize = 60,
+  ) {}
 
   async isAvailable(): Promise<boolean> {
     if (this.hasChecked) {
@@ -108,7 +107,7 @@ export class ZellijMultiplexer implements Multiplexer {
       serverUrl,
       directory,
     );
-    const paneName = description.slice(0, 30).replace(/"/g, '\\"');
+    const paneName = description.slice(0, 30);
 
     const currentTabId = await this.getCurrentTabId(zellij);
     const inAgentTab = currentTabId === this.agentTabId;
@@ -211,6 +210,16 @@ export class ZellijMultiplexer implements Multiplexer {
         directory,
       );
 
+      // Switch to the agent tab before interacting with the pane,
+      // otherwise focus-pane/write-chars may target the wrong tab.
+      const originalTab = await this.getCurrentTabId(zellij);
+      if (this.agentTabId) {
+        await crossSpawn(
+          [zellij, 'action', 'go-to-tab-by-id', this.agentTabId],
+          { stdout: 'ignore', stderr: 'ignore' },
+        ).exited;
+      }
+
       await crossSpawn([zellij, 'action', 'focus-pane', '--pane-id', paneId], {
         stdout: 'ignore',
         stderr: 'ignore',
@@ -233,6 +242,14 @@ export class ZellijMultiplexer implements Multiplexer {
         stdout: 'ignore',
         stderr: 'ignore',
       }).exited;
+
+      // Switch back to the user's original tab
+      if (originalTab) {
+        await crossSpawn(
+          [zellij, 'action', 'go-to-tab-by-id', String(originalTab)],
+          { stdout: 'ignore', stderr: 'ignore' },
+        ).exited;
+      }
 
       return true;
     } catch {
@@ -353,7 +370,7 @@ export class ZellijMultiplexer implements Multiplexer {
       if (exitCode !== 0) return null;
 
       const stdout = await proc.stdout();
-      const lines = stdout.split('\n');
+      const lines = stdout.split(/\r?\n/);
 
       for (const line of lines) {
         const parts = line.trim().split(/\s+/);
@@ -404,7 +421,7 @@ export class ZellijMultiplexer implements Multiplexer {
 
       const stdout = await proc.stdout();
       return stdout
-        .split('\n')
+        .split(/\r?\n/)
         .slice(1)
         .map((line) => line.trim().split(/\s+/)[0])
         .filter((id) => id?.startsWith('terminal_'));
@@ -414,7 +431,11 @@ export class ZellijMultiplexer implements Multiplexer {
   }
 
   async closePane(paneId: string): Promise<boolean> {
-    if (!paneId || paneId === 'unknown') return true;
+    if (!paneId) return false;
+    if (paneId === 'unknown') {
+      // No identifiable pane to close — log and treat as failure
+      return false;
+    }
 
     const zellij = await this.getBinary();
     if (!zellij) return false;
@@ -466,7 +487,17 @@ export class ZellijMultiplexer implements Multiplexer {
       });
       if ((await proc.exited) !== 0) return null;
       const stdout = await proc.stdout();
-      return stdout.trim().split('\n')[0] || null;
+      const path = stdout.trim().split(/\r?\n/)[0].trim();
+      if (!path) return null;
+
+      // Verify it works
+      const verifyProc = crossSpawn([path, '--version'], {
+        stdout: 'pipe',
+        stderr: 'pipe',
+      });
+      if ((await verifyProc.exited) !== 0) return null;
+
+      return path;
     } catch {
       return null;
     }
@@ -481,18 +512,14 @@ function buildOpencodeAttachCommand(
   return [
     'opencode',
     'attach',
-    quoteShellArg(serverUrl),
+    quoteShellArg(serverUrl, 'posix'),
     '--session',
-    quoteShellArg(sessionId),
+    quoteShellArg(sessionId, 'posix'),
     '--dir',
-    quoteShellArg(directory),
+    quoteShellArg(directory, 'posix'),
   ].join(' ');
 }
 
 function buildShellLaunchCommand(command: string): string {
-  return ['sh', '-lc', quoteShellArg(command)].join(' ');
-}
-
-function quoteShellArg(value: string): string {
-  return `'${value.replace(/'/g, `'\\''`)}'`;
+  return ['sh', '-lc', quoteShellArg(command, 'posix')].join(' ');
 }

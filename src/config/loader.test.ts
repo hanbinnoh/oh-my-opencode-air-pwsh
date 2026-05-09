@@ -1293,7 +1293,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads replacement prompt from {agent}.md', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'replacement prompt');
 
@@ -1303,7 +1307,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads append prompt from {agent}_append.md', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(
       path.join(promptsDir, 'oracle_append.md'),
@@ -1316,7 +1324,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('loads both replacement and append prompts', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'replacement prompt');
     fs.writeFileSync(
@@ -1330,7 +1342,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('handles file read errors gracefully', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     const promptPath = path.join(promptsDir, 'error-agent.md');
     fs.writeFileSync(promptPath, 'content');
@@ -1363,7 +1379,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('prefers preset prompt files over root prompts', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1384,7 +1404,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back to root prompt files when preset files are missing', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1400,7 +1424,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back independently between preset and root files', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
 
@@ -1416,7 +1444,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('ignores unsafe preset names for prompt lookup', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'root replacement');
 
@@ -1426,7 +1458,11 @@ describe('loadAgentPrompt', () => {
   });
 
   test('falls back to root when preset prompt file read fails', () => {
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     const presetDir = path.join(promptsDir, 'test');
     fs.mkdirSync(presetDir, { recursive: true });
     const presetPromptPath = path.join(presetDir, 'oracle.md');
@@ -1461,7 +1497,7 @@ describe('loadAgentPrompt', () => {
     const promptsDir = path.join(
       customConfigHome,
       'opencode',
-      'oh-my-opencode-air',
+      'oh-my-opencode-air-pwsh',
     );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'xdg-agent.md'), 'xdg prompt');
@@ -1476,7 +1512,7 @@ describe('loadAgentPrompt', () => {
     );
     process.env.OPENCODE_CONFIG_DIR = customDir;
 
-    const promptsDir = path.join(customDir, 'oh-my-opencode-air');
+    const promptsDir = path.join(customDir, 'oh-my-opencode-air-pwsh');
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(
       path.join(promptsDir, 'oracle.md'),
@@ -1495,7 +1531,11 @@ describe('loadAgentPrompt', () => {
     );
     process.env.OPENCODE_CONFIG_DIR = customDir;
 
-    const promptsDir = path.join(tempDir, 'opencode', 'oh-my-opencode-air');
+    const promptsDir = path.join(
+      tempDir,
+      'opencode',
+      'oh-my-opencode-air-pwsh',
+    );
     fs.mkdirSync(promptsDir, { recursive: true });
     fs.writeFileSync(path.join(promptsDir, 'oracle.md'), 'fallback prompt');
 

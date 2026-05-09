@@ -3,6 +3,7 @@
  */
 
 import type { MultiplexerConfig, MultiplexerType } from '../config/schema';
+import { crossSpawn } from '../utils/compat';
 import { log } from '../utils/logger';
 import { TmuxMultiplexer } from './tmux';
 import type { Multiplexer } from './types';
@@ -72,26 +73,15 @@ export function clearMultiplexerCache(): void {
 }
 
 /**
- * Get the effective multiplexer type for auto mode
- * Returns the actual type that would be used (tmux/zellij/none)
- */
-export function getAutoMultiplexerType(): 'tmux' | 'zellij' | 'none' {
-  if (process.env.TMUX) {
-    return 'tmux';
-  }
-  if (process.env.ZELLIJ) {
-    return 'zellij';
-  }
-  return 'none';
-}
-
-/**
- * Start background availability check for a multiplexer
+ * Start background availability check for a multiplexer.
+ * Uses a lightweight binary check to avoid constructing a full multiplexer instance.
  */
 export function startAvailabilityCheck(config: MultiplexerConfig): void {
-  const multiplexer = getMultiplexer(config);
-  if (multiplexer) {
-    // Fire and forget - don't await
-    multiplexer.isAvailable().catch(() => {});
+  if (config.type === 'tmux' || config.type === 'zellij') {
+    const cmd = process.platform === 'win32' ? 'where' : 'which';
+    crossSpawn([cmd, config.type], {
+      stdout: 'pipe',
+      stderr: 'pipe',
+    }).exited.catch(() => {});
   }
 }

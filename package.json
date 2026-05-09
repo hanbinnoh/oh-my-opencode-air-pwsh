@@ -1,7 +1,7 @@
 {
-  "name": "oh-my-opencode-air",
-  "version": "1.0.7",
-  "description": "Agent orchestration plugin for on-premise dumb models (Qwen3.5, Minimax) - fork of oh-my-opencode-slim",
+  "name": "oh-my-opencode-air-pwsh",
+  "version": "1.0.8",
+  "description": "Agent orchestration plugin for on-premise dumb models (Qwen3.5, Minimax) - fork of oh-my-opencode-slim with Windows/PowerShell support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -15,7 +15,7 @@
     }
   },
   "bin": {
-    "oh-my-opencode-air": "./dist/cli/index.js"
+    "oh-my-opencode-air-pwsh": "./dist/cli/index.js"
   },
   "type": "module",
   "license": "MIT",
@@ -27,20 +27,22 @@
     "orchestration",
     "on-premise",
     "qwen",
-    "minimax"
+    "minimax",
+    "windows",
+    "powershell"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/oh-my-opencode-air"
+    "url": "https://github.com/hanbinnoh/oh-my-opencode-air-pwsh"
   },
   "bugs": {
-    "url": "https://github.com/your-org/oh-my-opencode-air/issues"
+    "url": "https://github.com/hanbinnoh/oh-my-opencode-air-pwsh/issues"
   },
-  "homepage": "https://github.com/your-org/oh-my-opencode-air#readme",
+  "homepage": "https://github.com/hanbinnoh/oh-my-opencode-air-pwsh#readme",
   "files": [
     "dist",
     "src/skills",
-    "oh-my-opencode-air.schema.json",
+    "oh-my-opencode-air-pwsh.schema.json",
     "README.md",
     "LICENSE"
   ],

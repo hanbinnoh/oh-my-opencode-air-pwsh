@@ -10,11 +10,7 @@
     },
     "scoringEngineVersion": {
       "type": "string",
-      "enum": [
-        "v1",
-        "v2-shadow",
-        "v2"
-      ]
+      "enum": ["v1", "v2-shadow", "v2"]
     },
     "balanceProviderUsage": {
       "type": "boolean"
@@ -46,12 +42,7 @@
               "pattern": "^[^/\\s]+\\/[^\\s]+$"
             }
           },
-          "required": [
-            "primary",
-            "fallback1",
-            "fallback2",
-            "fallback3"
-          ]
+          "required": ["primary", "fallback1", "fallback2", "fallback3"]
         },
         "oracle": {
           "type": "object",
@@ -73,12 +64,7 @@
               "pattern": "^[^/\\s]+\\/[^\\s]+$"
             }
           },
-          "required": [
-            "primary",
-            "fallback1",
-            "fallback2",
-            "fallback3"
-          ]
+          "required": ["primary", "fallback1", "fallback2", "fallback3"]
         },
         "explorer": {
           "type": "object",
@@ -100,12 +86,7 @@
               "pattern": "^[^/\\s]+\\/[^\\s]+$"
             }
           },
-          "required": [
-            "primary",
-            "fallback1",
-            "fallback2",
-            "fallback3"
-          ]
+          "required": ["primary", "fallback1", "fallback2", "fallback3"]
         },
         "fixer": {
           "type": "object",
@@ -127,20 +108,10 @@
               "pattern": "^[^/\\s]+\\/[^\\s]+$"
             }
           },
-          "required": [
-            "primary",
-            "fallback1",
-            "fallback2",
-            "fallback3"
-          ]
+          "required": ["primary", "fallback1", "fallback2", "fallback3"]
         }
       },
-      "required": [
-        "orchestrator",
-        "oracle",
-        "explorer",
-        "fixer"
-      ],
+      "required": ["orchestrator", "oracle", "explorer", "fixer"],
       "additionalProperties": false
     },
     "presets": {
@@ -179,9 +150,7 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "id"
-                        ]
+                        "required": ["id"]
                       }
                     ]
                   }
@@ -263,9 +232,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id"
-                      ]
+                      "required": ["id"]
                     }
                   ]
                 }
@@ -334,12 +301,7 @@
         "type": {
           "default": "none",
           "type": "string",
-          "enum": [
-            "auto",
-            "tmux",
-            "zellij",
-            "none"
-          ]
+          "enum": ["auto", "tmux", "zellij", "none"]
         },
         "layout": {
           "default": "main-vertical",
@@ -392,10 +354,7 @@
         "provider": {
           "default": "exa",
           "type": "string",
-          "enum": [
-            "exa",
-            "tavily"
-          ]
+          "enum": ["exa", "tavily"]
         }
       }
     },
@@ -519,6 +478,6 @@
       }
     }
   },
-  "title": "oh-my-opencode-air",
-  "description": "Configuration schema for oh-my-opencode-air plugin for OpenCode"
+  "title": "oh-my-opencode-air-pwsh",
+  "description": "Configuration schema for oh-my-opencode-air-pwsh plugin for OpenCode"
 }

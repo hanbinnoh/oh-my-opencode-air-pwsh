@@ -108,6 +108,9 @@ export class MultiplexerSessionManager {
     const closing = this.closingSessions.get(sessionId);
     if (closing) await closing;
 
+    // Re-check after await: deletion may have raced in
+    if (this.closingSessions.has(sessionId)) return;
+
     if (this.isTrackedOrSpawning(sessionId)) return;
 
     this.knownSessions.set(sessionId, {
@@ -247,10 +250,8 @@ export class MultiplexerSessionManager {
 
     try {
       const statusResult = await this.client.session.status();
-      const allStatuses = (statusResult.data ?? {}) as Record<
-        string,
-        { type: string }
-      >;
+      if (!statusResult?.data) return;
+      const allStatuses = statusResult.data as Record<string, { type: string }>;
 
       const now = Date.now();
       const sessionsToClose: Array<{ sessionId: string; reason: CloseReason }> =
@@ -302,8 +303,6 @@ export class MultiplexerSessionManager {
     const tracked = this.sessions.get(sessionId);
     if (!tracked || !this.multiplexer) return;
 
-    this.sessions.delete(sessionId);
-
     log('[multiplexer-session-manager] closing session pane', {
       sessionId,
       paneId: tracked.paneId,
@@ -312,15 +311,28 @@ export class MultiplexerSessionManager {
 
     const closePromise: Promise<void> = this.multiplexer
       .closePane(tracked.paneId)
-      .then(() => undefined)
-      .catch((err) =>
+      .then((closed) => {
+        if (!closed) {
+          log('[multiplexer-session-manager] closePane returned false', {
+            sessionId,
+            paneId: tracked.paneId,
+            reason,
+          });
+        }
+        if (!closed && reason !== 'deleted') {
+          // Leave in knownSessions so respawnIfKnown won't create a duplicate
+          return;
+        }
+        this.sessions.delete(sessionId);
+      })
+      .catch((err) => {
         log('[multiplexer-session-manager] failed to close session pane', {
           sessionId,
           paneId: tracked.paneId,
           reason,
           error: String(err),
-        }),
-      )
+        });
+      })
       .finally(() => {
         this.closingSessions.delete(sessionId);
         this.updatePolling();

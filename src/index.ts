@@ -60,7 +60,7 @@ function appLog(
 ): void {
   const prefix =
     level === 'error' ? 'ERROR' : level === 'warn' ? 'WARN' : 'INFO';
-  console.error(`[oh-my-opencode-air] ${prefix}: ${message}`);
+  console.error(`[oh-my-opencode-air-pwsh] ${prefix}: ${message}`);
 }
 
 /** Minimum expected registrations for a healthy plugin load. */
@@ -84,6 +84,9 @@ async function probeJSDOM(): Promise<string | null> {
     return String(err);
   }
 }
+
+/** Tracks previous MultiplexerSessionManager for cleanup on plugin re-init. */
+let previousMultiplexerSessionManager: MultiplexerSessionManager | null = null;
 
 // Module-level runtime preset tracking. Survives plugin re-inits triggered
 // by client.config.update() → Instance.dispose(). When the plugin function
@@ -127,6 +130,10 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
   let rewriteDisplayNameMentions: ReturnType<
     typeof createDisplayNameMentionRewriter
   >;
+
+  // Cleanup registry for partial init failure recovery (set inside try,
+  // consumed in catch)
+  const disposables: Array<{ cleanup: () => void | Promise<void> }> = [];
 
   // Counters for post-init health check (set inside try, checked outside)
   let toolCount = 0;
@@ -222,16 +229,23 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
     }
 
     depthTracker = new SubagentDepthTracker();
+    disposables.push({ cleanup: () => depthTracker.cleanupAll() });
 
     mcps = createBuiltinMcps(config.disabled_mcps, config.websearch);
     webfetch = createWebfetchTool(ctx);
 
     // Initialize MultiplexerSessionManager to handle OpenCode's built-in
     // Task tool sessions
+    if (previousMultiplexerSessionManager) {
+      previousMultiplexerSessionManager.cleanup();
+      previousMultiplexerSessionManager = null;
+    }
     multiplexerSessionManager = new MultiplexerSessionManager(
       ctx,
       multiplexerConfig,
     );
+    disposables.push(multiplexerSessionManager);
+    previousMultiplexerSessionManager = multiplexerSessionManager;
 
     // Initialize auto-update checker hook
     autoUpdateChecker = createAutoUpdateCheckerHook(ctx, {
@@ -296,6 +310,14 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
       1 + // webfetch
       2; // ast_grep_search, ast_grep_replace
   } catch (err) {
+    // Clean up any partially-initialized resources before re-throwing
+    await Promise.allSettled(
+      disposables.map(async (d) => {
+        try {
+          await d.cleanup();
+        } catch {}
+      }),
+    );
     // Plugin init failed: log visibly before re-throwing so the user
     // sees something actionable instead of a silent "loaded but empty".
     log('[plugin] FATAL: init failed', String(err));
@@ -346,7 +368,7 @@ const OhMyOpenCodeLite: Plugin = async (ctx) => {
   });
 
   return {
-    name: 'oh-my-opencode-air',
+    name: 'oh-my-opencode-air-pwsh',
 
     agent: agents,
 

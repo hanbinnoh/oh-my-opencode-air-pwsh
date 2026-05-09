@@ -81,6 +81,17 @@ function getOpenCodePaths(): string[] {
     `${home}/.yarn/bin/opencode`,
     // PNPM
     `${home}/.pnpm-global/bin/opencode`,
+    // Windows paths (also useful for WSL)
+    ...(process.env.LOCALAPPDATA
+      ? [`${process.env.LOCALAPPDATA}/Programs/opencode/bin/opencode.exe`]
+      : []),
+    'C:/Program Files/opencode/bin/opencode.exe',
+    ...(process.env.APPDATA
+      ? [
+          `${process.env.APPDATA}/npm/opencode.cmd`,
+          `${process.env.APPDATA}/npm/opencode`,
+        ]
+      : []),
   ];
 }
 

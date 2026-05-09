@@ -4,7 +4,7 @@ import { RECOMMENDED_SKILLS } from './skills';
 import type { InstallConfig } from './types';
 
 const SCHEMA_URL =
-  'https://unpkg.com/oh-my-opencode-air@latest/oh-my-opencode-air.schema.json';
+  'https://unpkg.com/oh-my-opencode-air-pwsh@latest/oh-my-opencode-air-pwsh.schema.json';
 
 export const GENERATED_PRESETS = ['openai', 'opencode-go'] as const;
 

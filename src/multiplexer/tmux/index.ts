@@ -5,6 +5,7 @@
 import type { MultiplexerLayout } from '../../config/schema';
 import { crossSpawn } from '../../utils/compat';
 import { log } from '../../utils/logger';
+import { quoteShellArg } from '../../utils/shell-quote';
 import type { Multiplexer, PaneResult } from '../types';
 
 const TMUX_LAYOUT_DEBOUNCE_MS = 150;
@@ -293,7 +294,7 @@ export class TmuxMultiplexer implements Multiplexer {
       }
 
       const stdout = await proc.stdout();
-      const path = stdout.trim().split('\n')[0];
+      const path = stdout.trim().split(/\r?\n/)[0].trim();
       if (!path) {
         log('[tmux] findBinary: no path in output');
         return null;
@@ -317,8 +318,4 @@ export class TmuxMultiplexer implements Multiplexer {
       return null;
     }
   }
-}
-
-function quoteShellArg(value: string): string {
-  return `'${value.replace(/'/g, `'\\''`)}'`;
 }

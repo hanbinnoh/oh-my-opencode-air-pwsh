@@ -3,7 +3,7 @@ import { appendFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-const LOG_PREFIX = 'oh-my-opencode-air.';
+const LOG_PREFIX = 'oh-my-opencode-air-pwsh.';
 const LOG_SUFFIX = '.log';
 const RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -11,10 +11,15 @@ let logFile: string | null = null;
 let writeChain: Promise<void> = Promise.resolve();
 
 function getLogDir(): string {
-  return (
-    process.env.OPENCODE_LOG_DIR ??
-    path.join(os.homedir(), '.local/share/opencode')
-  );
+  if (process.env.OPENCODE_LOG_DIR) return process.env.OPENCODE_LOG_DIR;
+  if (process.platform === 'win32') {
+    return path.join(
+      process.env.LOCALAPPDATA ?? os.homedir(),
+      'opencode',
+      'logs',
+    );
+  }
+  return path.join(os.homedir(), '.local/share/opencode');
 }
 
 function cleanupOldLogs(logDir: string): void {
