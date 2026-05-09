@@ -133,6 +133,8 @@ The on-premise server has a strict 100-line-per-tool-call limit. This is enforce
 
 ## Development
 
+> **Note:** The built CLI (`dist/cli/index.js`) is a standard Node.js script (via `#!/usr/bin/env node` shebang). Bun is used for development, building, and testing, but the compiled CLI output runs on any Node.js runtime.
+
 ```powershell
 bun install          # Install dependencies
 bun run build        # Build to dist/
