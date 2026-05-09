@@ -1,6 +1,6 @@
-# oh-my-opencode-air
+# oh-my-opencode-air-pwsh
 
-Agent orchestration plugin for on-premise models (Qwen3.5, Minimax). Fork of oh-my-opencode-slim.
+Agent orchestration plugin for on-premise models (Qwen3.5, Minimax). Fork of oh-my-opencode-air with Windows/PowerShell support.
 
 ## Agents
 
@@ -30,38 +30,47 @@ cp /tmp/bun-old/bun-linux-x64/bun ~/.opencode/bin/bun && chmod +x ~/.opencode/bi
 
 If bun is not installed at all:
 ```bash
+# Linux / WSL
 curl -fsSL https://bun.sh/install | bash
+
+# Windows (native PowerShell)
+powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
 ### Step 2: Install dependencies and build
 
 ```bash
-cd /path/to/oh-my-opencode-air
+cd /path/to/oh-my-opencode-air-pwsh
 bun install
 bun run build
 ```
 
 ### Step 3: Register the plugin
 
-Add the plugin path to OpenCode config. The config file is at `~/.config/opencode/opencode.json` or `~/.config/opencode/opencode.jsonc`.
+Add the plugin path to OpenCode config. The config file is at:
 
-If the file exists, add `"oh-my-opencode-air"` to the `plugin` array:
+| Platform | Path |
+|----------|------|
+| Linux / WSL | `~/.config/opencode/opencode.json` or `~/.config/opencode/opencode.jsonc` |
+| Windows | `%USERPROFILE%\.config\opencode\opencode.json` or `%LOCALAPPDATA%\opencode\opencode.json` |
+
+If the file exists, add `"oh-my-opencode-air-pwsh"` to the `plugin` array:
 ```jsonc
 {
-  "plugin": ["oh-my-opencode-air"]
+  "plugin": ["oh-my-opencode-air-pwsh"]
 }
 ```
 
 If the file does not exist, create it:
 ```jsonc
 {
-  "plugin": ["oh-my-opencode-air"]
+  "plugin": ["oh-my-opencode-air-pwsh"]
 }
 ```
 
 ### Step 4: Create agent configuration
 
-Create the file `~/.config/opencode/oh-my-opencode-air.json`:
+Create the config file at `~/.config/opencode/oh-my-opencode-air.json` (Linux/WSL) or `%USERPROFILE%\.config\opencode\oh-my-opencode-air.json` (Windows):
 
 ```json
 {
@@ -74,7 +83,7 @@ Create the file `~/.config/opencode/oh-my-opencode-air.json`:
 }
 ```
 
-Note: Replace `onprem/qwen3.5-397b` and `onprem/minimax-2.5` with the actual model identifiers available in your OpenCode provider configuration.
+> **Note:** The config file name (`oh-my-opencode-air.json`) is kept unchanged for backward compatibility with existing `oh-my-opencode-air` users. Replace `onprem/qwen3.5-397b` and `onprem/minimax-2.5` with the actual model identifiers available in your OpenCode provider configuration.
 
 ### Step 5: Verify installation
 
@@ -105,11 +114,26 @@ Edit `~/.config/opencode/oh-my-opencode-air.json` to customize:
 If your company has an internal code search MCP server:
 
 ```bash
+# Linux / WSL
 export DS_SEARCH_URL="http://your-internal-server:8080/mcp"
 export DS_SEARCH_API_KEY="your-token"
+
+# Windows PowerShell
+$env:DS_SEARCH_URL="http://your-internal-server:8080/mcp"
+$env:DS_SEARCH_API_KEY="your-token"
 ```
 
 The explorer agent will automatically use it for code search.
+
+## Platform Support
+
+| Feature | Linux | WSL | Windows (native) |
+|---------|-------|-----|------------------|
+| Plugin (orchestration) | Works | Works | Works |
+| tmux/zellij pane spawning | Works | Works | Not available |
+| Shell quoting | POSIX | POSIX | PowerShell (built-in) |
+
+On native Windows, the multiplexer gracefully degrades — the plugin and all agents work normally, but pane-spawning features are unavailable.
 
 ## 100-Line Write Constraint
 
@@ -145,7 +169,7 @@ src/
 ├── multiplexer/  # Tmux/Zellij integration
 ├── skills/       # Skills (codemap, simplify, karpathy-guidelines)
 ├── tools/        # Tools (webfetch, AST-grep)
-└── utils/        # Shared utilities
+└── utils/        # Shared utilities (shell-quote, logger, compat)
 ```
 
 ## Philosophy
