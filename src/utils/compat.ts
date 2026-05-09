@@ -50,6 +50,8 @@ export function crossSpawn(
   },
 ): CrossSpawnResult {
   const [cmd, ...args] = command;
+  const isWindowsCmd = process.platform === 'win32' && (cmd.toLowerCase().endsWith('.cmd') || cmd.toLowerCase().endsWith('.bat'));
+  
   const proc = nodeSpawn(cmd, args, {
     stdio: [
       options?.stdin ?? 'ignore',
@@ -58,6 +60,7 @@ export function crossSpawn(
     ],
     cwd: options?.cwd,
     env: options?.env as NodeJS.ProcessEnv,
+    shell: isWindowsCmd,
   });
 
   const stdoutCollector = collectStream(proc.stdout);

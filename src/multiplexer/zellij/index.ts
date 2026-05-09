@@ -114,6 +114,10 @@ export class ZellijMultiplexer implements Multiplexer {
 
     if (inAgentTab) {
       // Already in agent tab, create pane directly
+      const isWindows = process.platform === 'win32';
+      const shellCmd = isWindows ? 'powershell' : 'sh';
+      const shellArgs = isWindows ? ['-NoProfile', '-Command'] : ['-lc'];
+
       const args = [
         'action',
         'new-pane',
@@ -121,8 +125,8 @@ export class ZellijMultiplexer implements Multiplexer {
         paneName,
         '--close-on-exit',
         '--',
-        'sh',
-        '-lc',
+        shellCmd,
+        ...shellArgs,
         opencodeCmd,
       ];
 
@@ -509,17 +513,22 @@ function buildOpencodeAttachCommand(
   serverUrl: string,
   directory: string,
 ): string {
+  const shellType = process.platform === 'win32' ? 'powershell' : 'posix';
   return [
     'opencode',
     'attach',
-    quoteShellArg(serverUrl, 'posix'),
+    quoteShellArg(serverUrl, shellType),
     '--session',
-    quoteShellArg(sessionId, 'posix'),
+    quoteShellArg(sessionId, shellType),
     '--dir',
-    quoteShellArg(directory, 'posix'),
+    quoteShellArg(directory, shellType),
   ].join(' ');
 }
 
 function buildShellLaunchCommand(command: string): string {
+  const isWindows = process.platform === 'win32';
+  if (isWindows) {
+    return command;
+  }
   return ['sh', '-lc', quoteShellArg(command, 'posix')].join(' ');
 }

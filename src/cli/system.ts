@@ -29,8 +29,10 @@ function resolvePathCommand(command: string): string | null {
 
 function canExecute(command: string, args: string[]): boolean {
   try {
+    const isWindowsCmd = process.platform === 'win32' && (command.toLowerCase().endsWith('.cmd') || command.toLowerCase().endsWith('.bat'));
     const result = spawnSync(command, args, {
       stdio: 'ignore',
+      shell: isWindowsCmd,
     });
     return result.status === 0;
   } catch {
@@ -40,6 +42,25 @@ function canExecute(command: string, args: string[]): boolean {
 
 function getOpenCodePaths(): string[] {
   const home = process.env.HOME || process.env.USERPROFILE || '';
+
+  if (process.platform === 'win32') {
+    return [
+      'opencode',
+      ...(process.env.LOCALAPPDATA
+        ? [`${process.env.LOCALAPPDATA}/Programs/opencode/bin/opencode.exe`]
+        : []),
+      'C:/Program Files/opencode/bin/opencode.exe',
+      ...(process.env.APPDATA
+        ? [
+            `${process.env.APPDATA}/npm/opencode.cmd`,
+            `${process.env.APPDATA}/npm/opencode`,
+          ]
+        : []),
+      `${home}/.local/bin/opencode.exe`,
+      `${home}/.opencode/bin/opencode.exe`,
+      `${home}/bin/opencode.exe`,
+    ];
+  }
 
   return [
     // PATH (try this first)
@@ -81,17 +102,6 @@ function getOpenCodePaths(): string[] {
     `${home}/.yarn/bin/opencode`,
     // PNPM
     `${home}/.pnpm-global/bin/opencode`,
-    // Windows paths (also useful for WSL)
-    ...(process.env.LOCALAPPDATA
-      ? [`${process.env.LOCALAPPDATA}/Programs/opencode/bin/opencode.exe`]
-      : []),
-    'C:/Program Files/opencode/bin/opencode.exe',
-    ...(process.env.APPDATA
-      ? [
-          `${process.env.APPDATA}/npm/opencode.cmd`,
-          `${process.env.APPDATA}/npm/opencode`,
-        ]
-      : []),
   ];
 }
 

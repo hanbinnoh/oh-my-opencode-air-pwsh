@@ -17,42 +17,31 @@ If you are an AI agent reading this README to install the plugin, follow these s
 
 ### Step 1: Check prerequisites
 
-```bash
+Open PowerShell and check if bun is installed:
+
+```powershell
 bun --version
 ```
 
-Must be **bun v1.1.x** — v1.2+ has a WSL UNC path bug. If on WSL and bun v1.2+ is installed:
-```bash
-curl -fsSL -o /tmp/bun.zip https://github.com/oven-sh/bun/releases/download/bun-v1.1.38/bun-linux-x64.zip
-unzip -o /tmp/bun.zip -d /tmp/bun-old && mkdir -p ~/.opencode/bin
-cp /tmp/bun-old/bun-linux-x64/bun ~/.opencode/bin/bun && chmod +x ~/.opencode/bin/bun
-```
+If bun is not installed:
 
-If bun is not installed at all:
-```bash
-# Linux / WSL
-curl -fsSL https://bun.sh/install | bash
-
-# Windows (native PowerShell)
+```powershell
 powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
+Must be **bun v1.1.x** — the latest stable release.
+
 ### Step 2: Install dependencies and build
 
-```bash
-cd /path/to/oh-my-opencode-air-pwsh
+```powershell
+cd \path\to\oh-my-opencode-air-pwsh
 bun install
 bun run build
 ```
 
 ### Step 3: Register the plugin
 
-Add the plugin path to OpenCode config. The config file is at:
-
-| Platform | Path |
-|----------|------|
-| Linux / WSL | `~/.config/opencode/opencode.json` or `~/.config/opencode/opencode.jsonc` |
-| Windows | `%USERPROFILE%\.config\opencode\opencode.json` or `%LOCALAPPDATA%\opencode\opencode.json` |
+Add the plugin path to OpenCode config. The config file is at `%USERPROFILE%\.config\opencode\opencode.json` or `%USERPROFILE%\.config\opencode\opencode.jsonc`.
 
 If the file exists, add `"oh-my-opencode-air-pwsh"` to the `plugin` array:
 ```jsonc
@@ -70,7 +59,7 @@ If the file does not exist, create it:
 
 ### Step 4: Create agent configuration
 
-Create the config file at `~/.config/opencode/oh-my-opencode-air.json` (Linux/WSL) or `%USERPROFILE%\.config\opencode\oh-my-opencode-air.json` (Windows):
+Create the file `%USERPROFILE%\.config\opencode\oh-my-opencode-air.json`:
 
 ```json
 {
@@ -96,7 +85,7 @@ All 4 agents (orchestrator, explorer, fixer, oracle) should respond.
 
 ## Configuration
 
-Edit `~/.config/opencode/oh-my-opencode-air.json` to customize:
+Edit `%USERPROFILE%\.config\opencode\oh-my-opencode-air.json` to customize:
 
 ```json
 {
@@ -113,12 +102,7 @@ Edit `~/.config/opencode/oh-my-opencode-air.json` to customize:
 
 If your company has an internal code search MCP server:
 
-```bash
-# Linux / WSL
-export DS_SEARCH_URL="http://your-internal-server:8080/mcp"
-export DS_SEARCH_API_KEY="your-token"
-
-# Windows PowerShell
+```powershell
 $env:DS_SEARCH_URL="http://your-internal-server:8080/mcp"
 $env:DS_SEARCH_API_KEY="your-token"
 ```
@@ -127,13 +111,13 @@ The explorer agent will automatically use it for code search.
 
 ## Platform Support
 
-| Feature | Linux | WSL | Windows (native) |
-|---------|-------|-----|------------------|
-| Plugin (orchestration) | Works | Works | Works |
-| tmux/zellij pane spawning | Works | Works | Not available |
-| Shell quoting | POSIX | POSIX | PowerShell (built-in) |
+On native Windows, **tmux and zellij are not available**. The multiplexer module gracefully degrades — the plugin core and all agents work normally, but pane-spawning features are unavailable.
 
-On native Windows, the multiplexer gracefully degrades — the plugin and all agents work normally, but pane-spawning features are unavailable.
+| Feature | Windows (native) |
+|---------|------------------|
+| Plugin (orchestration + agents) | Works |
+| tmux/zellij pane spawning | Not available |
+| Shell quoting | PowerShell (built-in) |
 
 ## 100-Line Write Constraint
 
@@ -149,7 +133,7 @@ The on-premise server has a strict 100-line-per-tool-call limit. This is enforce
 
 ## Development
 
-```bash
+```powershell
 bun install          # Install dependencies
 bun run build        # Build to dist/
 bun run typecheck    # Type check
@@ -166,7 +150,7 @@ src/
 ├── config/       # Constants, schemas
 ├── hooks/        # Lifecycle hooks (including write-constraint)
 ├── mcp/          # MCP servers (websearch, grep_app, ds_search)
-├── multiplexer/  # Tmux/Zellij integration
+├── multiplexer/  # Tmux/Zellij integration (no-op on Windows)
 ├── skills/       # Skills (codemap, simplify, karpathy-guidelines)
 ├── tools/        # Tools (webfetch, AST-grep)
 └── utils/        # Shared utilities (shell-quote, logger, compat)
@@ -187,13 +171,8 @@ Based on [Karpathy's coding guidelines](https://x.com/karpathy/status/2015883857
 ### Tests failing
 
 Some tests depend on the environment. Skip them:
-```bash
+```powershell
 bun test --test-path-pattern='!interview|dashboard|paths|system|providers|apply-patch|task-session-manager|tmux|auto-update-checker'
-```
-
-### tmux not installed
-```bash
-apt-get install -y tmux
 ```
 
 ### Plugin not loading

@@ -54,9 +54,9 @@ export class TmuxMultiplexer implements Multiplexer {
 
     try {
       // Build the attach command
-      const quotedDirectory = quoteShellArg(directory);
-      const quotedUrl = quoteShellArg(serverUrl);
-      const quotedSessionId = quoteShellArg(sessionId);
+      const quotedDirectory = quoteShellArg(directory, 'posix');
+      const quotedUrl = quoteShellArg(serverUrl, 'posix');
+      const quotedSessionId = quoteShellArg(sessionId, 'posix');
 
       const opencodeCmd = [
         'opencode',
